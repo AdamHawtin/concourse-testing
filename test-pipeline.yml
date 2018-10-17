@@ -1,0 +1,23 @@
+---
+resources:
+- name: test-repo-source
+  type: git
+  source:
+    uri: git@github.com:AdamHawtin/concourse-testing.git
+    branch: master
+
+- name: test-repo-release
+  type: github-release
+  source:
+    user: AdamHawtin
+    repository: concourse-testing
+
+jobs:
+- name: test-job
+  serial: true
+  plan:
+  - get: test-repo-release
+    trigger: true
+  - get: test-repo-source
+  - task: run-unit-tests
+    file: test-repo-source/hello-my-friends.yml
