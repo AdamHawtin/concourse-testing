@@ -3,7 +3,7 @@ resources:
 - name: test-repo-source
   type: git
   source:
-    uri: git@github.com:AdamHawtin/concourse-testing.git
+    uri: https://github.com/AdamHawtin/concourse-testing.git
     branch: master
 
 - name: test-repo-release
@@ -19,5 +19,5 @@ jobs:
   - get: test-repo-release
     trigger: true
   - get: test-repo-source
-  - task: run-unit-tests
+  - task: Hello My Friends!
     file: test-repo-source/hello-my-friends.yml
