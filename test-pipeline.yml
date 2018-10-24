@@ -28,6 +28,8 @@ jobs:
   - get: test-repo-release
   - get: test-repo-pre-release
     trigger: true
+    params:
+      include_source_tarball: true
   - task: Hello My Friends!
     file: test-repo-source/hello-my-friends.yml
   - task: Get pre release source
@@ -65,7 +67,7 @@ jobs:
         args:
         - -exc
         - |
-          cd test-pre-relesae-source
+          cd test-pre-release-source
           ls -a
 
 - name: test-release-job
