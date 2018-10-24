@@ -16,3 +16,4 @@ run:
       cd test-repo-release
       cat ./tag
       cat ./version
+      ls -a
