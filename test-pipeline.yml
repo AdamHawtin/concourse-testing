@@ -5,38 +5,42 @@ resources:
   source:
     uri: https://github.com/AdamHawtin/concourse-testing.git
     branch: master
+    tag_filter: ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$
 
-- name: test-repo-release
-  type: github-release
-  source:
-    user: AdamHawtin
-    repository: concourse-testing
 
-- name: test-repo-pre-release
-  type: github-release
-  source:
-    user: AdamHawtin
-    repository: concourse-testing
-    pre_release: true
-    release: true
+# - name: test-repo-release
+#   type: github-release
+#   source:
+#     user: AdamHawtin
+#     repository: concourse-testing
+#
+# - name: test-repo-pre-release
+#   type: github-release
+#   source:
+#     user: AdamHawtin
+#     repository: concourse-testing
+#     pre_release: true
+#     release: true
 
 jobs:
 - name: test-pre-release-job
   serial: true
   plan:
   - get: test-repo-source
-  - get: test-repo-release
-  - get: test-repo-pre-release
+  # - get: test-repo-release
+  # - get: test-repo-pre-release
     trigger: true
   - task: Hello My Friends!
-    file: test-repo-source/pre-hello-my-friends.yml
+    file: test-repo-source/hello-my-friends.yml
 
 - name: test-on-release-job
   serial: true
   plan:
-  - get: test-repo-release
+  # - get: test-repo-release
+    # trigger: true
+    # passed: [test-pre-release-job]
+  - get: test-repo-source
     trigger: true
     passed: [test-pre-release-job]
-  - get: test-repo-source
   - task: Hello My Friends!
     file: test-repo-source/hello-my-friends.yml
