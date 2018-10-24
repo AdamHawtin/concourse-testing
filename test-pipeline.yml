@@ -6,18 +6,19 @@ resources:
     uri: https://github.com/AdamHawtin/concourse-testing.git
     branch: master
 
-- name: test-repo-master-release
+- name: test-repo-release
   type: github-release
   source:
     user: AdamHawtin
     repository: concourse-testing
 
-- name: test-repo-latest-branch-release
+
+- name: test-repo-pre-release
   type: github-release
   source:
     user: AdamHawtin
     repository: concourse-testing
-    branch: latest-release
+    pre-release: true
 
 jobs:
 - name: test-on-commit-job
@@ -28,11 +29,11 @@ jobs:
   - task: Hello My Friends!
     file: test-repo-source/hello-my-friends.yml
 
-- name: test-branch-release-job
+- name: test-pre-release-job
   serial: true
   plan:
   - get: test-repo-source
-  - get: test-repo-latest-branch-release
+  - get: test-repo-pre-release
     trigger: true
   - task: Hello My Friends!
     file: test-repo-source/hello-my-friends.yml
@@ -40,7 +41,7 @@ jobs:
 - name: test-on-release-job
   serial: true
   plan:
-  - get: test-repo-master-release
+  - get: test-repo-release
     trigger: true
   - get: test-repo-source
   - task: Hello My Friends!
