@@ -29,7 +29,7 @@ jobs:
   - get: test-repo-pre-release
     trigger: true
   - task: Hello My Friends!
-    file: test-repo-source/hello-my-friends.yml
+    file: test-repo-source/pre-hello-my-friends.yml
 
 - name: test-on-release-job
   serial: true
