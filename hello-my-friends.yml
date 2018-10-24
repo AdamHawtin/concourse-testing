@@ -13,7 +13,3 @@ run:
     - -exc
     - |
       echo 'Hello my friends!'
-      cd test-repo-source
-      cat ./tag
-      cat ./version
-      ls -a
