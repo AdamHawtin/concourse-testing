@@ -18,21 +18,14 @@ resources:
   source:
     user: AdamHawtin
     repository: concourse-testing
-    pre-release: true
+    pre_release: true
 
 jobs:
-- name: test-on-commit-job
-  serial: true
-  plan:
-  - get: test-repo-source
-    trigger: true
-  - task: Hello My Friends!
-    file: test-repo-source/hello-my-friends.yml
-
 - name: test-pre-release-job
   serial: true
   plan:
   - get: test-repo-source
+  - get: test-repo-release
   - get: test-repo-pre-release
     trigger: true
   - task: Hello My Friends!
@@ -43,6 +36,7 @@ jobs:
   plan:
   - get: test-repo-release
     trigger: true
+    passed: [test-pre-release-job]
   - get: test-repo-source
   - task: Hello My Friends!
     file: test-repo-source/hello-my-friends.yml
