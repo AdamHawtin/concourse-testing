@@ -12,13 +12,13 @@ resources:
     user: AdamHawtin
     repository: concourse-testing
 
-
 - name: test-repo-pre-release
   type: github-release
   source:
     user: AdamHawtin
     repository: concourse-testing
     pre_release: true
+    release: true
 
 jobs:
 - name: test-pre-release-job
