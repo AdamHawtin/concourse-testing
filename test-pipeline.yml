@@ -1,32 +1,25 @@
 ---
 resources:
-- name: test-repo-source
-  type: git
-  source:
-    uri: https://github.com/AdamHawtin/concourse-testing.git
-    branch: master
-
-- name: test-repo-release
+- name: repo-release
   type: github-release
   source:
     user: AdamHawtin
     repository: concourse-testing
 
-- name: test-repo-preprod-release
+- name: repo-pre-release
   type: github-release
   source:
     user: AdamHawtin
     repository: concourse-testing
-    release: true
+    release: false
     pre_release: true
 
 jobs:
-- name: test-pre-release-job
+- name: preprod-pre-release-deploy
+  serial_groups: [preprod_deploys]
   serial: true
   plan:
-  - get: test-repo-source
-  - get: test-repo-release
-  - get: test-repo-preprod-release
+  - get: repo-pre-release
     trigger: true
     params:
       include_source_tarball: true
@@ -39,17 +32,16 @@ jobs:
           repository: alpine
           tag: latest
       inputs:
-      - name: test-repo-preprod-release
+      - name: repo-pre-release
       outputs:
-      - name: test-preprod-release-source
+      - name: pre-release-source
       run:
         path: sh
         args:
         - -exc
         - |
-          mkdir test-preprod-release-source
-          tar -xzf test-repo-preprod-release/source.tar.gz -C test-preprod-release-source --strip-components=1
-          ls -a test-preprod-release-source
+          tar -xzf repo-pre-release/source.tar.gz -C pre-release-source --strip-components=1
+          ls -a pre-release-source
   - task: Check pre-prelease source
     config:
       platform: linux
@@ -59,20 +51,98 @@ jobs:
           repository: alpine
           tag: latest
       inputs:
-      - name: test-preprod-release-source
+      - name: pre-release-source
       run:
         path: sh
         args:
         - -exc
         - |
-          ls -a test-preprod-release-source
+          ls -a pre-release-source
 
-- name: test-release-job
+- name: preprod-deploy
+  serial_groups: [preprod_deploys]
   serial: true
   plan:
-  - get: test-repo-release
+  - get: repo-release
     trigger: true
-    passed: [test-pre-release-job]
-  - get: test-repo-source
-  - task: Hello My Friends!
-    file: test-repo-source/hello-my-friends.yml
+    params:
+      include_source_tarball: true
+  - task: Get release source
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: alpine
+          tag: latest
+      inputs:
+      - name: repo-release
+      outputs:
+      - name: release-source
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          tar -xzf repo-release/source.tar.gz -C release-source --strip-components=1
+          ls -a release-source
+  - task: Check pre-prod release source
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: alpine
+          tag: latest
+      inputs:
+      - name: release-source
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          ls -a release-source
+
+- name: prod-deploy
+  serial: true
+  plan:
+  - get: repo-release
+    trigger: true
+    params:
+      include_source_tarball: true
+    passed: [preprod-deploy]
+  - task: Get release source
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: alpine
+          tag: latest
+      inputs:
+      - name: repo-release
+      outputs:
+      - name: release-source
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          tar -xzf repo-release/source.tar.gz -C release-source --strip-components=1
+          ls -a release-source
+  - task: Check release source
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: alpine
+          tag: latest
+      inputs:
+      - name: release-source
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          ls -a release-source
