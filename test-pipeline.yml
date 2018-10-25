@@ -12,13 +12,13 @@ resources:
     user: AdamHawtin
     repository: concourse-testing
 
-- name: test-repo-pre-release
+- name: test-repo-preprod-release
   type: github-release
   source:
     user: AdamHawtin
     repository: concourse-testing
-    pre_release: true
     release: true
+    pre_release: true
 
 jobs:
 - name: test-pre-release-job
@@ -26,12 +26,10 @@ jobs:
   plan:
   - get: test-repo-source
   - get: test-repo-release
-  - get: test-repo-pre-release
+  - get: test-repo-preprod-release
     trigger: true
     params:
       include_source_tarball: true
-  - task: Hello My Friends!
-    file: test-repo-source/hello-my-friends.yml
   - task: Get pre release source
     config:
       platform: linux
@@ -41,17 +39,17 @@ jobs:
           repository: alpine
           tag: latest
       inputs:
-      - name: test-repo-pre-release
+      - name: test-repo-preprod-release
       outputs:
-      - name: test-pre-release-source
+      - name: test-preprod-release-source
       run:
         path: sh
         args:
         - -exc
         - |
-          cd test-repo-pre-release
-          mkdir test-pre-release-source
-          tar -xzf source.tar.gz -C test-pre-release-source --strip-components=1
+          mkdir test-preprod-release-source
+          tar -xzf test-repo-preprod-release/source.tar.gz -C test-preprod-release-source --strip-components=1
+          ls -a test-preprod-release-source
   - task: Check pre-prelease source
     config:
       platform: linux
@@ -61,14 +59,13 @@ jobs:
           repository: alpine
           tag: latest
       inputs:
-      - name: test-pre-release-source
+      - name: test-preprod-release-source
       run:
         path: sh
         args:
         - -exc
         - |
-          cd test-pre-release-source
-          ls -a
+          ls -a test-preprod-release-source
 
 - name: test-release-job
   serial: true
