@@ -14,6 +14,11 @@ resources:
     release: false
     pre_release: true
 
+- name: concourse-testing
+  type: git
+  source:
+    uri: https://github.com/AdamHawtin/concourse-testing.git
+
 jobs:
 - name: preprod-pre-release-deploy
   serial_groups: [preprod_deploys]
@@ -23,25 +28,11 @@ jobs:
     trigger: true
     params:
       include_source_tarball: true
+  - get: concourse-testing
   - task: Get pre release source
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          repository: alpine
-          tag: latest
-      inputs:
-      - name: repo-pre-release
-      outputs:
-      - name: pre-release-source
-      run:
-        path: sh
-        args:
-        - -exc
-        - |
-          tar -xzf repo-pre-release/source.tar.gz -C pre-release-source --strip-components=1
-          ls -a pre-release-source
+    file: concourse-testing/extract-source-from-release.yml
+    input_mapping: { release-resource: repo-pre-release }
+    output_mapping: { release-source: pre-release-source }
   - task: Check pre-prelease source
     config:
       platform: linux
@@ -67,25 +58,11 @@ jobs:
     trigger: true
     params:
       include_source_tarball: true
+  - get: concourse-testing
   - task: Get release source
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          repository: alpine
-          tag: latest
-      inputs:
-      - name: repo-release
-      outputs:
-      - name: release-source
-      run:
-        path: sh
-        args:
-        - -exc
-        - |
-          tar -xzf repo-release/source.tar.gz -C release-source --strip-components=1
-          ls -a release-source
+    file: concourse-testing/extract-source-from-release.yml
+    input_mapping: { release-resource: repo-release }
+    output_mapping: { release-source: release-source }
   - task: Check pre-prod release source
     config:
       platform: linux
@@ -111,25 +88,11 @@ jobs:
     params:
       include_source_tarball: true
     passed: [preprod-deploy]
+  - get: concourse-testing
   - task: Get release source
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          repository: alpine
-          tag: latest
-      inputs:
-      - name: repo-release
-      outputs:
-      - name: release-source
-      run:
-        path: sh
-        args:
-        - -exc
-        - |
-          tar -xzf repo-release/source.tar.gz -C release-source --strip-components=1
-          ls -a release-source
+    file: concourse-testing/extract-source-from-release.yml
+    input_mapping: { release-resource: repo-release }
+    output_mapping: { release-source: release-source }
   - task: Check release source
     config:
       platform: linux
