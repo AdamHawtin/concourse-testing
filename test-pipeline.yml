@@ -14,7 +14,7 @@ resources:
     release: false
     pre_release: true
 
-- name: concourse-testing
+- name: concourse-testing-repo
   type: git
   source:
     uri: https://github.com/AdamHawtin/concourse-testing.git
@@ -28,9 +28,9 @@ jobs:
     trigger: true
     params:
       include_source_tarball: true
-  - get: concourse-testing
+  - get: concourse-testing-repo
   - task: Get pre release source
-    file: concourse-testing/extract-source-from-release.yml
+    file: concourse-testing-repo/extract-source-from-release.yml
     input_mapping: { release-resource: repo-pre-release }
     output_mapping: { release-source: pre-release-source }
   - task: Check pre-prelease source
@@ -58,9 +58,9 @@ jobs:
     trigger: true
     params:
       include_source_tarball: true
-  - get: concourse-testing
+  - get: concourse-testing-repo
   - task: Get release source
-    file: concourse-testing/extract-source-from-release.yml
+    file: concourse-testing-repo/extract-source-from-release.yml
     input_mapping: { release-resource: repo-release }
     output_mapping: { release-source: release-source }
   - task: Check pre-prod release source
@@ -88,9 +88,9 @@ jobs:
     params:
       include_source_tarball: true
     passed: [preprod-deploy]
-  - get: concourse-testing
+  - get: concourse-testing-repo
   - task: Get release source
-    file: concourse-testing/extract-source-from-release.yml
+    file: concourse-testing-repo/extract-source-from-release.yml
     input_mapping: { release-resource: repo-release }
     output_mapping: { release-source: release-source }
   - task: Check release source
