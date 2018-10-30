@@ -3,13 +3,13 @@ resources:
 - name: repo-release
   type: github-release
   source:
-    user: AdamHawtin
+    owner: AdamHawtin
     repository: concourse-testing
 
 - name: repo-pre-release
   type: github-release
   source:
-    user: AdamHawtin
+    owner: AdamHawtin
     repository: concourse-testing
     release: false
     pre_release: true
