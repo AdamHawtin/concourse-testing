@@ -15,7 +15,7 @@ resources:
 - name: kubernetes-testing
   type: kubernetes
   source:
-    server: ((kuberneter-server))
+    server: ((kubernetes-server))
     namespace: ((kubernetes-namespace))
     # token: ((kubernetes-token))
     certificate_authority: ((kubernetes-certificate))
