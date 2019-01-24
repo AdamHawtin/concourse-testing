@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: survey
+  labels:
+    app: survey
+spec:
+  ports:
+    - port: 80
+      targetPort: http-server
+  selector:
+    app: survey
+    tier: api-service
+  type: LoadBalancer
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: survey
+  labels:
+    app: survey
+spec:
+  selector:
+    matchLabels:
+      app: survey
+      tier: api-service
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: survey
+        tier: api-service
+    spec:
+      containers:
+      - image: sdcplatform/surveysvc
+        name: surveysvc
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "64Mi"
+          limits:
+            memory: "128Mi"
+        readinessProbe:
+          httpGet:
+            path: /info
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          failureThreshold: 3
+          successThreshold: 1
+        ports:
+          - name: http-server
+            containerPort: 8080
+        env:
+          - name: DATABASE_URL
+            value: "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
+          - name: PORT
+            value: "8080"
+          - name: security_user_name
+            value: "admin"
+          - name: security_user_password
+            value: "secret"
+          - name: ZIPKIN_DSN
+            value: "http://zipkin/api/v1/spans"
+          - name: ZIPKIN_SAMPLE_RATE
+            value: "1.0"

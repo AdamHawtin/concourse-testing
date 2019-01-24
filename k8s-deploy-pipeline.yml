@@ -1,0 +1,30 @@
+---
+resource_types:
+- name: kubernetes
+  type: docker-image
+  source:
+    repository: zlabjp/kubernetes-resource
+    tag: "1.13"
+
+resources:
+- name: concourse-testing-repo
+  type: git
+  source:
+    uri: https://github.com/AdamHawtin/concourse-testing.git
+
+- name: kubernetes-testing
+  type: kubernetes
+  source:
+    server: ((kuberneter-server))
+    namespace: ((kubernetes-namespace))
+    # token: ((kubernetes-token))
+    certificate_authority: ((kubernetes-certificate))
+
+jobs:
+- name: kubernetes-deploy-testing
+  plan:
+  - get: concourse-testing-repo
+    trigger: true
+  - put: kubernetes-testing
+    params:
+      kubectl: apply -f concourse-testing-repo/k8s-test-deploy.yml
