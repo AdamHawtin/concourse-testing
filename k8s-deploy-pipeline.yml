@@ -17,8 +17,9 @@ resources:
   source:
     server: ((kubernetes-server))
     namespace: ((kubernetes-namespace))
-    # token: ((kubernetes-token))
+    token: ((kubernetes-token))
     certificate_authority: ((kubernetes-certificate))
+    # insecure_skip_tls_verify: true
 
 jobs:
 - name: kubernetes-deploy-testing
@@ -27,4 +28,4 @@ jobs:
     trigger: true
   - put: kubernetes-testing
     params:
-      kubectl: apply -f concourse-testing-repo/k8s-test-deploy.yml
+      kubectl: apply -f concourse-testing-repo/deployments/
