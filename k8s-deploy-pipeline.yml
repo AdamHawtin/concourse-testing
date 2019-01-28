@@ -22,10 +22,20 @@ resources:
     # insecure_skip_tls_verify: true
 
 jobs:
-- name: kubernetes-deploy-testing
+- name: backing-service-deploys
   plan:
   - get: concourse-testing-repo
     trigger: true
   - put: kubernetes-testing
     params:
-      kubectl: apply -f concourse-testing-repo/deployments/
+      kubectl: apply -f concourse-testing-repo/backing-services/
+      wait_until_ready_selector: app=nano-1
+
+- name: frontend-service-deploys
+  plan:
+  - get: concourse-testing-repo
+    trigger: true
+  - put: kubernetes-testing
+    params:
+      kubectl: apply -f concourse-testing-repo/frontend-services/
+      wait_until_ready_selector: "app in (nano-3, nano-2)"

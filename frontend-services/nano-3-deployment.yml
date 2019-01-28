@@ -1,31 +1,19 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: nano-1-svc
-  labels:
-    app: nano-1
-spec:
-  ports:
-    - port: 80
-  selector:
-    app: nano-1
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nano-1
+  name: nano-3
 spec:
   selector:
     matchLabels:
-      app: nano-1
+      app: nano-3
   replicas: 5
   template:
     metadata:
       labels:
-        app: nano-1
+        app: nano-3
     spec:
       containers:
-      - name: nano-1-1
+      - name: nano-3-1
         image: nano-1
         imagePullPolicy: IfNotPresent
         ports:
